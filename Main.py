@@ -14,11 +14,10 @@ print("Hello World")
 
 # Create network. Input is two consecutive game states, output is Q-values of the possible moves.
 model = Sequential()
-model.add(Dense(64, input_shape=(2,), init='uniform', activation='relu'))
-model.add(Dense(40, init='uniform', activation='relu'))
-model.add(Dense(20, init='uniform', activation='relu'))
-model.add(Dense(env.action_space.n, init='uniform', activation='linear'))
-    # same number of outputs as possible actions
+model.add(Dense(64, input_dim=2, kernel_initializer='uniform', activation='relu'))
+model.add(Dense(40, kernel_initializer='uniform', activation='relu'))
+model.add(Dense(20, kernel_initializer='uniform', activation='relu'))
+model.add(Dense(env.action_space.n, kernel_initializer='uniform', activation='linear')) # same number of outputs as possible actions
 model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
 
 # Parameters
