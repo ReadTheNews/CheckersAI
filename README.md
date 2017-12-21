@@ -2,6 +2,8 @@
 A few reads before going forward:
 - https://www.oreilly.com/ideas/reinforcement-learning-for-complex-goals-using-tensorflow
 - https://www.intelnervana.com/demystifying-deep-reinforcement-learning/
+- https://github.com/Hvass-Labs/TensorFlow-Tutorials/blob/master/16_Reinforcement_Learning.ipynb
+
 
 ### Reinforcement learning for complex goals
 - An agent receives a state (s) from the environment
@@ -14,3 +16,6 @@ A few reads before going forward:
 - We learn a direct mapping between state and action pairs (s,a) and value estimations (v)
 - The value estimation should correspond to the discounted expected reward over time from taking action (a) while in state (s)
 - Using the Bellman equation, we can iteratively update our estimations of Q(s,a) for all possible state action pairs
+
+## The Q-value formula
+- Q(s_t, a_t) = r_t + gamma * max_a Q(s_(t+1), a)
