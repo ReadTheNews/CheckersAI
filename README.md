@@ -1,12 +1,12 @@
 # CheckersAI
-Want to play a game?
+A few reads before going forward:
+- https://www.oreilly.com/ideas/reinforcement-learning-for-complex-goals-using-tensorflow
+- https://www.intelnervana.com/demystifying-deep-reinforcement-learning/
 
-
-## Reinforcement learning for complex goals using TF
-https://www.oreilly.com/ideas/reinforcement-learning-for-complex-goals-using-tensorflow
+### Reinforcement learning for complex goals
 - An agent receives a state (s) from the environment
 - Produces an action (a)
-Given this state and action pair, the environment provides:
+#### Given this state and action pair, the environment provides:
 - A new state (s′)
 - A reward (r)
 
