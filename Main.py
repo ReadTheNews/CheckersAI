@@ -3,26 +3,24 @@
 from keras.models import Sequential     # One Layer after the other
 from keras.layers import Dense, Flatten          # Dense layers are fully connected layers
 import numpy as np
-import random
 from collections import deque            # For storing moves
-import Qvalue_NN
+
+# Custom Functions
+from Qvalue_NN import qvalue_nn
+from Action_collect import action_collect
+from Train_QvalueNN import train_qvalue_nn
 
 # Notes:
-# 1)
+# *)
 # figure out how the game will pass along positives and negatives values
 # - Bad moves, good moves: jumping opponent, correct move, winning
 # - Should winning even be a concern? it should all be about points for jumping w/
 # - punishment of being jumped
-# 2)
-# need to make some type of counter that stores "x" number of states for training of the NN
-# Then we will enter the loop to train from the sampled moves
-# post training - dump the previous moves to collect and retrain.
-# 3)
+# *)
 # need some mapping of checkers actions to number of possible board position to new board position
-# 4)
+# *)
 # able to load in a model or start a new one?
-# 5) program should be a function
-# be able to call so it could represent 2 players with 1 code
+
 
 
 checkers_game = "passed in"
@@ -36,8 +34,9 @@ checkers_actions = 8*8*(8)   # This should be total number of possible actions t
 # ----------------------------------
 # Create network for player 1 and player 2
 # ----------------------------------
-p1_model = Qvalue_NN(checkers_actions)
-p2_model = Qvalue_NN(checkers_actions)
+# qvalue_NN( checkers_actions ):
+p1_model = qvalue_nn(checkers_actions)
+p2_model = qvalue_nn(checkers_actions)
 
 # ----------------------------------
 # Q-value Parameters
@@ -52,48 +51,36 @@ stored_actions = deque()      # Register where the actions will be stored
 observe_time = 1000           # Number of time-steps we will be acting on the game and observing results
 batch_size = 300              # Learning mini-batch size
 
-
 # ----------------------------------
-# Initialization for model
+# Initialization for model -- First game in training?
 # ----------------------------------
 observation = ""       # Observation is passed in
-obs = np.expand_dims(observation, axis=0)     # (Formatting issues) Making the observation the first element of a batch of inputs
-state = np.stack((obs, obs), axis=1) # what exactly is happening here?
+# (Formatting issues) Making the observation the first element of a batch of inputs
+obs = np.expand_dims(observation, axis=0)
+state = np.stack((obs, obs), axis=1)  # what exactly is happening here?
 done = False
+
+p1_state = ""
+p2_state = ""
+
 # ----------------------------------
 # Collect Actions
 # ----------------------------------
-
+# action_collect(model, state, epsilon, checkers_actions, observe_time )
+p1_stored_actions = action_collect(p1_model, p1_state, epsilon, checkers_actions, observe_time)
+p2_stored_actions = action_collect(p2_model, p2_state, epsilon, checkers_actions, observe_time)
+# How do I properly call for an action to occur and then begin to store each action for each player
 
 print('Observing Finished')
 # ----------------------------------
 # Train model
 # Learning from the observed actions -- Retraining of NN / Q-values
 # ----------------------------------
-batch_update = random.sample(stored_actions, batch_size)
-inputs_shape = (batch_size,) + state.shape[1:]
-inputs = np.zeros(inputs_shape)
-targets = np.zeros((batch_size, checkers_actions))
+# train_qvalue_nn(stored_actions, batch_size, model, gamma, checkers_actions, state)
 
-for i in range(0, batch_size):
-    state = batch_update[i][0]
-    action = batch_update[i][1]
-    reward = batch_update[i][2]
-    state_new = batch_update[i][3]
-    done = batch_update[i][4]
+p1_model = train_qvalue_nn(p1_stored_actions, batch_size, p1_model, gamma, checkers_actions, p1_state)
+p2_model = train_qvalue_nn(p2_stored_actions, batch_size, p2_model, gamma, checkers_actions, p2_state)
 
-    # Build Bellman equation for the Q function
-    inputs[i:i + 1] = np.expand_dims(state, axis=0)
-    targets[i] = model.predict(state)
-    Q_sa = model.predict(state_new)
-
-    if done:
-        targets[i, action] = reward
-    else:
-        targets[i, action] = reward + gamma * np.max(Q_sa)
-
-    # Train network to output the Q function
-    model.train_on_batch(inputs, targets)
 print('Learning Finished')
 
 

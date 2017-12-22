@@ -4,7 +4,8 @@ from keras.layers import Dense, Flatten          # Dense layers are fully connec
 # ----------------------------------
 # Create network. Input is two consecutive game states, output is Q-values of the possible moves.
 # ----------------------------------
-def Qvalue_NN( checkers_actions ):
+
+def qvalue_nn(checkers_actions):
     model = Sequential()
     model.add(Dense(64, input_dim=2, kernel_initializer='uniform', activation='relu'))
     model.add(Flatten())   # Flatten input so as to have no problems with processing

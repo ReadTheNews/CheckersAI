@@ -7,7 +7,7 @@ from keras.layers import Dense, Flatten          # Dense layers are fully connec
 # ----------------------------------
 # Collect Actions
 # ----------------------------------
-def Action_collect(model, state, epsilon, checkers_actions, observe_time ):
+def action_collect(model, state, epsilon, checkers_actions, observe_time ):
     checkers_game = "" # need to import checkers game path???
     for t in range(observe_time):
         if np.random.rand() <= epsilon:
@@ -26,4 +26,4 @@ def Action_collect(model, state, epsilon, checkers_actions, observe_time ):
                 obs = np.expand_dims(observation, axis=0)
                     # (Formatting issues) Making the observation the first element of a batch of inputs
                 state = np.stack((obs, obs), axis=1)  # what exactly is happening here?
-
+    return ""
