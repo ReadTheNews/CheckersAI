@@ -9,6 +9,7 @@ from collections import deque            # For storing moves
 from Qvalue_NN import qvalue_nn
 from Action_collect import action_collect
 from Train_QvalueNN import train_qvalue_nn
+from Action_decision import action_decision
 
 # Notes:
 # *)
@@ -47,9 +48,8 @@ gamma = 0.9            # Discounted future reward. How much we care about steps 
 # ----------------------------------
 # Q-value NN update Parameters
 # ----------------------------------
-stored_actions = deque()      # Register where the actions will be stored
-observe_time = 1000           # Number of time-steps we will be acting on the game and observing results
-batch_size = 300              # Learning mini-batch size
+observe_time = 150           # Number of time-steps we will be acting on the game and observing results
+batch_size = 50              # Learning mini-batch size
 
 # ----------------------------------
 # Initialization for model -- First game in training?
@@ -67,8 +67,11 @@ p2_state = ""
 # Collect Actions
 # ----------------------------------
 # action_collect(model, state, epsilon, checkers_actions, observe_time )
-p1_stored_actions = action_collect(p1_model, p1_state, epsilon, checkers_actions, observe_time)
-p2_stored_actions = action_collect(p2_model, p2_state, epsilon, checkers_actions, observe_time)
+p1_stored_actions = deque()  # Register where the actions will be stored
+p2_stored_actions = deque()  # Register where the actions will be stored
+iterations = 0
+p1_stored_actions, p2_stored_actions = action_collect(p1_model, p1_state, p2_model, p2_state epsilon, \
+                checkers_actions, observe_time, p1_stored_actions, p2_stored_actions, iterations)
 # How do I properly call for an action to occur and then begin to store each action for each player
 
 print('Observing Finished')
