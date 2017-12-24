@@ -1,9 +1,9 @@
 # CheckersAI
 A few reads before going forward:
-- https://www.oreilly.com/ideas/reinforcement-learning-for-complex-goals-using-tensorflow
-- https://www.intelnervana.com/demystifying-deep-reinforcement-learning/
-- https://github.com/Hvass-Labs/TensorFlow-Tutorials/blob/master/16_Reinforcement_Learning.ipynb
-
+- [Reinforcement learning for complex goals using TF](https://www.oreilly.com/ideas/reinforcement-learning-for-complex-goals-using-tensorflow)
+- [Demystifying Deep Reinforcement learning](https://www.intelnervana.com/demystifying-deep-reinforcement-learning/)
+- [Reinforcement Learning ipython example - Big](https://github.com/Hvass-Labs/TensorFlow-Tutorials/blob/master/16_Reinforcement_Learning.ipynb)
+- [Reinforcement Learning ipython example - Small](https://github.com/llSourcell/deep_q_learning/blob/master/03_PlayingAgent.ipynb)
 ## Setup
 
 If you don't already have [pipenv](https://docs.pipenv.org/basics/) installed, then ```pip install pipenv```
