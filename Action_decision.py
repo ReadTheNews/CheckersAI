@@ -7,10 +7,9 @@ from keras.layers import Dense, Flatten          # Dense layers are fully connec
 # ----------------------------------
 # Collect Actions
 # ----------------------------------
-def action_decision(action, iterations, p1_model, p1_state, p2_model, p2_state, \
-                         epsilon, checkers_actions, observe_time, p1_stored_actions, p2_stored_actions):
-    checkers_game = ""  # need to import checkers game path???
-    if iterations < observe_time:
+def action_decision(action):
+    # This should be the mapping function of moves to submit
+    temp = action
+    print(temp)
+    return "17,26"
 
-
-        action_collect
