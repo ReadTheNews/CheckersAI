@@ -5,6 +5,9 @@ from keras.layers import Dense, Flatten          # Dense layers are fully connec
 import numpy as np
 from collections import deque            # For storing moves
 
+import sys
+sys.version
+
 # Custom Functions
 from Qvalue_NN import qvalue_nn
 from Action_collect import action_collect
@@ -51,39 +54,23 @@ gamma = 0.9            # Discounted future reward. How much we care about steps 
 observe_time = 150           # Number of time-steps we will be acting on the game and observing results
 batch_size = 50              # Learning mini-batch size
 
-# ----------------------------------
-# Initialization for model -- First game in training?
-# ----------------------------------
-observation = ""       # Observation is passed in
-# (Formatting issues) Making the observation the first element of a batch of inputs
-obs = np.expand_dims(observation, axis=0)
-state = np.stack((obs, obs), axis=1)  # what exactly is happening here?
-done = False
+# This is function will be where most of the game takes place
+print("Entering the game:")
+action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe_time, batch_size)
 
-p1_state = ""
-p2_state = ""
-
-# ----------------------------------
-# Collect Actions
-# ----------------------------------
-# action_collect(model, state, epsilon, checkers_actions, observe_time )
-p1_stored_actions = deque()  # Register where the actions will be stored
-p2_stored_actions = deque()  # Register where the actions will be stored
-iterations = 0
-p1_stored_actions, p2_stored_actions = action_collect(p1_model, p1_state, p2_model, p2_state, epsilon, \
-                checkers_actions, observe_time, p1_stored_actions, p2_stored_actions, iterations)
 # How do I properly call for an action to occur and then begin to store each action for each player
 
-print('Observing Finished')
+
 # ----------------------------------
 # Train model
 # Learning from the observed actions -- Retraining of NN / Q-values
 # ----------------------------------
 # train_qvalue_nn(stored_actions, batch_size, model, gamma, checkers_actions, state)
 
-p1_model = train_qvalue_nn(p1_stored_actions, batch_size, p1_model, gamma, checkers_actions, p1_state)
-p2_model = train_qvalue_nn(p2_stored_actions, batch_size, p2_model, gamma, checkers_actions, p2_state)
+#p1_model = train_qvalue_nn(p1_stored_actions, batch_size, p1_model, gamma, checkers_actions, p1_state)
+#p2_model = train_qvalue_nn(p2_stored_actions, batch_size, p2_model, gamma, checkers_actions, p2_state)
 
-print('Learning Finished')
+#print('Learning Finished')
 
+print("Thanks for watching 2 AIs play!")
 
