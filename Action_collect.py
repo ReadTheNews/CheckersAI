@@ -78,7 +78,9 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
         last_player = str(player_turn)
 
 
+
         #obs_new = np.expand_dims(observation_new, axis=0)          # (Formatting issues)
+
         # make sure I under stand the below function
         #state_new = np.append(np.expand_dims(obs_new, axis=0), p1_state[:, :1, :], axis=1)     # Update the input with the new state of the game
 
@@ -88,6 +90,7 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
         #p1_stored_actions.append((p1_state, action, reward, state_new, done))  # 'Remember' action and consequence
         #p1_state = state_new         # Update state
         #if done:
+
                     # force action collect to end.
                     # also need to  update p2's state and actions
         #           return ""
