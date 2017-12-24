@@ -101,5 +101,5 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
                         # (Formatting issues) Making the observation the first element of a batch of inputs
                     # state = np.stack((obs, obs), axis=1)  # what exactly is happening here?
 
-    return "Hellow World"
+    return "Hello World"
     #return p1_stored_actions, p2_stored_actions
