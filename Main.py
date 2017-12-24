@@ -70,7 +70,7 @@ p2_state = ""
 p1_stored_actions = deque()  # Register where the actions will be stored
 p2_stored_actions = deque()  # Register where the actions will be stored
 iterations = 0
-p1_stored_actions, p2_stored_actions = action_collect(p1_model, p1_state, p2_model, p2_state epsilon, \
+p1_stored_actions, p2_stored_actions = action_collect(p1_model, p1_state, p2_model, p2_state, epsilon, \
                 checkers_actions, observe_time, p1_stored_actions, p2_stored_actions, iterations)
 # How do I properly call for an action to occur and then begin to store each action for each player
 

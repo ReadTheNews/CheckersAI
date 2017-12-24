@@ -189,7 +189,7 @@ if __name__ == "__main__":
             source = int(source)
             dest = int(dest)
         except:
-            print('invalid move: must be formatted as "a,b"')
+            message = 'invalid move: must be formatted as "a,b"'
             continue
 
         try:

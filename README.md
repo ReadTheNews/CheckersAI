@@ -4,6 +4,14 @@ A few reads before going forward:
 - https://www.intelnervana.com/demystifying-deep-reinforcement-learning/
 - https://github.com/Hvass-Labs/TensorFlow-Tutorials/blob/master/16_Reinforcement_Learning.ipynb
 
+## Setup
+
+If you don't already have [pipenv](https://docs.pipenv.org/basics/) installed, then ```pip install pipenv```
+
+```
+pipenv install
+pipenv run python checkers.py
+```
 
 ### Reinforcement learning for complex goals
 - An agent receives a state (s) from the environment

@@ -34,7 +34,7 @@ def action_collect(p1_model, p1_state, p2_model, p2_state, epsilon, checkers_act
 
         observation_new, reward = action_decision(action, iterations, p1_model, p1_state, p2_model, p2_state, \
                                                   epsilon, checkers_actions, observe_time, \
-                                             p1_stored_actions, p2_stored_actions, iterations)   \
+                                             p1_stored_actions, p2_stored_actions, iterations)
                                                  # See state of the game, reward... after performing the action
         obs_new = np.expand_dims(observation_new, axis=0)          # (Formatting issues)
         # make sure I under stand the below function
@@ -43,8 +43,8 @@ def action_collect(p1_model, p1_state, p2_model, p2_state, epsilon, checkers_act
 
         if player_turn == 1:
 
-        p1_stored_actions.append((p1_state, action, reward, state_new, done))  # 'Remember' action and consequence
-        p1_state = state_new         # Update state
+            p1_stored_actions.append((p1_state, action, reward, state_new, done))  # 'Remember' action and consequence
+            p1_state = state_new         # Update state
         if done:
                     # force action collect to end.
                     # also need to  update p2's state and actions
