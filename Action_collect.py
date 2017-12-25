@@ -19,7 +19,7 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
     checkers_game = game.board_new()  # need to import checkers game path???
     #print(checkers_game)
 
-    obs = np.expand_dims(checkers_game, axis=0)
+    obs = np.expand_dims(np.asarray(checkers_game), axis=0)
     #print(obs)
     p1_state = np.stack((obs, obs), axis=1)
     p2_state = np.stack((obs, obs), axis=1)
@@ -36,7 +36,7 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
 
     player_turn = game.Player.WHITE
     last_player = ""
-    last_board_state = (64,)
+    last_board_state = np.asarray((64,))
     # print(str(player_turn))
     usr_input = ""
     new_game = True
@@ -78,7 +78,7 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
 
             # Place in Action for the next board state
             observation_new = game.move(checkers_game, player_turn, int(moves[0]), int(moves[1]))
-            obs_new = np.expand_dims(observation_new, axis=0)  # (Formatting issues)
+            obs_new = np.expand_dims(np.asarray(observation_new), axis=0)  # (Formatting issues)
             state_new = np.append(np.expand_dims(obs_new, axis=0), state[:, :1, :],
                                   axis=1)  # Update the input with the new state of the game
 
@@ -86,13 +86,13 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
             if str(player_turn) == "Player.WHITE":
                 if str(player_turn) != last_player:
                     if new_game == True:
-                        p1_stored_actions.append((state, action, 0, (64,), False))
+                        p1_stored_actions.append((state, action, 0, state, False))
                     else:
                         temp_list = list(p1_stored_actions[-1])
                         temp_list[3] = last_board_state  # update the previous move future state network
                         temp_list[2] = 1  # update the previous states score
                         p1_stored_actions[-1] = tuple(temp_list)
-                        p1_stored_actions.append((state, action, 0, (64,), False))
+                        p1_stored_actions.append((state, action, 0, state, False))
                         # This will initialize the next states stored moves that will later come back to edit
                 else:  # Means the input was invalid -- penalty needed
                     temp_list = list(p1_stored_actions[-1])
@@ -103,13 +103,13 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
             elif str(player_turn) == "Player.BLACK":
                 if str(player_turn) != last_player:
                     if new_game == True:
-                        p2_stored_actions.append((state, action, 0, (64,), False))
+                        p2_stored_actions.append((state, action, 0, state, False))
                     else:
                         temp_list = list(p2_stored_actions[-1])
                         temp_list[3] = last_board_state  # update the previous move future state network
                         temp_list[2] = 1  # update the previous states score
                         p2_stored_actions[-1] = tuple(temp_list)
-                        p2_stored_actions.append((state, action, 0, (64,), False))
+                        p2_stored_actions.append((state, action, 0, state, False))
                         # This will initialize the next states stored moves that will later come back to edit
                 else:  # Means the input was invalid -- penalty needed
                     temp_list = list(p2_stored_actions[-1])
@@ -143,10 +143,12 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
             p1_model = train_qvalue_nn(p1_stored_actions, batch_size, p1_model, gamma, checkers_actions, state)
             print("\nWhite Model Trained \n")
             p1_stored_actions = deque()
+            p1_stored_actions.append((state, action, 0, state, False))
         elif len(p2_stored_actions) >= observe_time:
             p2_model = train_qvalue_nn(p1_stored_actions, batch_size, p2_model, gamma, checkers_actions, state)
             print("\nBlack Model Trained \n")
             p2_stored_actions = deque()
+            p2_stored_actions.append((state, action, 0, state, False))
         else:
             print("WUUUUUUUT?!?!?!?!?!")
             print("No Model Training")
