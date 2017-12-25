@@ -104,6 +104,63 @@ def tile_get_player(tile):
         return None
 
 
+def _tile_checker_can_move(board, player, source):
+    a = 1 if player == Player.WHITE else -1
+    dest = source + a * (SIDE_SIZE - 1)
+    if move_dest_is_open(board, dest) and move_is_in_board(source, dest):
+        return dest
+    else:
+        dest = source + a * (SIDE_SIZE + 1)
+        if move_dest_is_open(board, dest) and move_is_in_board(source, dest):
+            return dest
+        else:
+            dest = source + a * 2 * (SIDE_SIZE - 1)
+            if move_jumps(board, player, source, dest) and move_is_in_board(source, dest):
+                return dest
+            else:
+                dest = source + a * 2 * (SIDE_SIZE + 1)
+                if move_jumps(board, player, source, dest) and move_is_in_board(source, dest):
+                    return dest
+                else:
+                    return None
+
+
+def _tile_king_can_move(board, player, source):
+    a = -1 if player == Player.WHITE else 1
+    dest = source + a * (SIDE_SIZE - 1)
+    if move_dest_is_open(board, dest) and move_is_in_board(source, dest):
+        return dest
+    else:
+        dest = source + a * (SIDE_SIZE + 1)
+        if move_dest_is_open(board, dest) and move_is_in_board(source, dest):
+            return dest
+        else:
+            dest = source + a * 2 * (SIDE_SIZE - 1)
+            if move_jumps(board, player, source, dest) and move_is_in_board(source, dest):
+                return dest
+            else:
+                dest = source + a * 2 * (SIDE_SIZE + 1)
+                if move_jumps(board, player, source, dest) and move_is_in_board(source, dest):
+                    return dest
+                else:
+                    return None
+
+
+def tile_can_move(board, source):
+    tile = board[source]
+    player = tile_get_player(tile)
+    if player is None:
+        return None
+    move = _tile_checker_can_move(board, player, source)
+    if move is not None:
+        return move
+    if tile == Tile.WHITE_KING.value or tile == Tile.BLACK_KING.value:
+        move = _tile_king_can_move(board, player, source)
+        if move is not None:
+            return move
+    return None
+
+
 def move_source_is_player(board, source, player):
     return player == tile_get_player(board[source])
 
@@ -119,6 +176,10 @@ def move_is_diagonal(source, dest):
 
 def move_is_in_board(source, dest):
     if dest < 0 or dest > BOARD_SIZE:
+        return False
+
+    # enforce odd column on even row and vice versa
+    if (dest % 2 + math.floor(dest / SIDE_SIZE) % 2) % 2 == 0:
         return False
 
     a = source % SIDE_SIZE
@@ -151,7 +212,7 @@ def jumped_player_position(source, dest):
 def move_jumps(board, player, source, dest):
     dist = math.fabs(dest - source)
     return ((dist == 2 * (SIDE_SIZE - 1) or dist == 2 * (SIDE_SIZE + 1))
-            and board[jumped_player_position(source, dest)] == ~player)
+            and tile_get_player(board[jumped_player_position(source, dest)]) == ~player)
 
 
 def move_grants_king(player, dest):
@@ -198,6 +259,7 @@ class Game:
         self.log = []
         self.board = board_new()
         self.turn = Player.WHITE
+        self.num_turns = 0
 
     def move(self, source, dest):
         if self.logging:
@@ -205,6 +267,7 @@ class Game:
         try:
             self.board = move(self.board, self.turn, source, dest)
             self.turn = ~self.turn
+            self.num_turns += self.num_turns
             return True
         except MoveError as e:
             if self.logging:
@@ -218,20 +281,25 @@ class Game:
                 if tile != Tile.EMPTY.value:
                     player = tile_get_player(tile)
                     continue
-            elif player != tile_get_player(tile):
+            elif player != tile_get_player(tile): # doesn't work on None values
                 return False
         return True
 
+    def hint(self):
+        arr = range(BOARD_SIZE - 1, -1, -1) if self.turn is Player.WHITE else range(BOARD_SIZE)
+        for source in arr:
+            if self.turn is tile_get_player(self.board[source]):
+                dest = tile_can_move(self.board, source)
+                if dest is not None:
+                    return source, dest
+        return None, None
 
-def game_is_over(board):
-    first = None
-    for square in board:
-        if square != Tile.EMPTY.value:
-            if first and first != square:
+
+    def is_stale(self):
+        for i, tile in enumerate(self.board):
+            if tile_can_move(self.board, i) is not None:
                 return False
-            else:
-                first = square
-    return True
+        return True
 
 
 if __name__ == "__main__":

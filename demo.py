@@ -16,6 +16,8 @@ def step(game, action):
     if not game.move(source, dest):
         return True, -1, game.board
     elif checkers.move_jumps(old_board, old_turn, source, dest):
+        return False, 2, game.board
+    elif checkers.move_grants_king(old_turn, dest):
         return False, 1, game.board
     else:
         return False, 0, game.board
@@ -55,11 +57,13 @@ def action_collect(p1_model, p2_model, epsilon, turns):
             else:
                 turn(game, p2_model, p2_actions)
 
-            if game.is_over():
+            if game.num_turns > 200 or game.is_over() or game.is_stale():
+                print('game finished, resetting...')
+                checkers.board_print(game.board)
                 game.reset()
     except:
         checkers.board_print(game.board)
-
+        print('{} player\'s turn'.format(game.turn.name))
         raise
 
     return p1_actions, p2_actions
@@ -87,3 +91,4 @@ mb_size = 50                               # Learning minibatch size
 p1_actions, p2_actions = action_collect(p1_model, p2_model, epsilon, turns)
 for action in p1_actions:
     print('{} {}'.format(action[1], action[2]))
+    break
