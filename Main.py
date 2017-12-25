@@ -31,9 +31,9 @@ checkers_game = "passed in"
 print('Game Loaded')
 
 # Game environment
-checkers_actions = 8*8*(8)   # This should be total number of possible actions to choose from
-# 8 possible moves - move [ up-left, up-right, down-left, down-right] * (can't jump, can jump)
-# 8*8 = piece selection (maybe reduce the number of choices? Since some will be null
+checkers_actions = 8*8*(8*8)
+# Provides the game any possible combination of moves on the checkers board
+
 
 # ----------------------------------
 # Create network for player 1 and player 2
