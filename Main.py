@@ -14,33 +14,29 @@ from Action_collect import action_collect
 from Train_QvalueNN import train_qvalue_nn
 from Action_decision import action_decision
 
-# Notes:
-# *)
-# figure out how the game will pass along positives and negatives values
-# - Bad moves, good moves: jumping opponent, correct move, winning
-# - Should winning even be a concern? it should all be about points for jumping w/
-# - punishment of being jumped
-# *)
-# need some mapping of checkers actions to number of possible board position to new board position
-# *)
-# able to load in a model or start a new one?
+import checkers
 
 
 
-checkers_game = "passed in"
 print('Game Loaded')
 
 # Game environment
-checkers_actions = 8*8*(8*8)
+checkers_actions = checkers.BOARD_SIZE*checkers.BOARD_SIZE
 # Provides the game any possible combination of moves on the checkers board
-
 
 # ----------------------------------
 # Create network for player 1 and player 2
 # ----------------------------------
 # qvalue_NN( checkers_actions ):
+print('Would you like to load in a model or start over?')
 p1_model = qvalue_nn(checkers_actions)
 p2_model = qvalue_nn(checkers_actions)
+load_model = ""
+while load_model !='y' and load_model != 'n':
+    load_model = input("Load? 'y'/'n': ")
+if load_model == 'y':
+    p1_model.load_weights('White_model_weights.h5')
+    p2_model.load_weights('Black_model_weights.h5')
 
 # ----------------------------------
 # Q-value Parameters
@@ -58,19 +54,7 @@ batch_size = 250              # Learning mini-batch size
 print("Entering the game:")
 action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe_time, batch_size)
 
-# How do I properly call for an action to occur and then begin to store each action for each player
 
-
-# ----------------------------------
-# Train model
-# Learning from the observed actions -- Retraining of NN / Q-values
-# ----------------------------------
-# train_qvalue_nn(stored_actions, batch_size, model, gamma, checkers_actions, state)
-
-#p1_model = train_qvalue_nn(p1_stored_actions, batch_size, p1_model, gamma, checkers_actions, p1_state)
-#p2_model = train_qvalue_nn(p2_stored_actions, batch_size, p2_model, gamma, checkers_actions, p2_state)
-
-#print('Learning Finished')
 
 print("Thanks for watching 2 AIs play!")
 

@@ -3,7 +3,7 @@ import random
 from collections import deque            # For storing moves
 from keras.models import Sequential     # One Layer after the other
 from keras.layers import Dense, Flatten          # Dense layers are fully connected layers
-#from keras.models import load_model
+
 
 from Action_decision import action_decision  # Decision mapping function
 import checkers
