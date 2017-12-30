@@ -3,10 +3,14 @@ import random
 from collections import deque            # For storing moves
 from keras.models import Sequential     # One Layer after the other
 from keras.layers import Dense, Flatten          # Dense layers are fully connected layers
+#from keras.models import load_model
 
 from Action_decision import action_decision  # Decision mapping function
 import checkers
 from Train_QvalueNN import train_qvalue_nn
+from time import sleep
+
+
 
 # ----------------------------------
 # Collect Actions
@@ -44,6 +48,7 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
     # Inside this function -- the game should run "Endlessly"
 
     while usr_input != "Escape":
+        out_of_time = False
         while len(p1_stored_actions) < observe_time and len(p2_stored_actions) < observe_time:
             # This should print out the "current" player and will check if the player is different than the previous state
             player_turn = checkers_game.turn
@@ -162,9 +167,41 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
 
         checkers.board_print(checkers_game.board)
 
-        usr_input = input("'Escape' - End: ")
-        #print("You entered " + str(usr_input))
 
+
+        print("\nYou have 5 seconds to input the following - (Ctrl-C to start / Ctrl-F2 in PyCharm IDE)")
+        print("-) Type 'Save' to Save and quit")
+        print("-) Type 'Escape' to quit")
+        print("-) 5 second timeout to continue")
+        # print("User input: ")
+        try:
+            for i in range(0,5):
+                sleep(1)
+        except KeyboardInterrupt:
+            usr_input = input("User elected to input the following: ")
+
+        if usr_input == "Save":
+            # Save the model
+            p1_model.save_weights('White_model_weights.h5')
+            p2_model.save_weights('Black_model_weights.h5')
+            usr_input = "Escape"
+            print("Saving and Leaving the Game")
+        elif usr_input == " Save":
+            # Save the model
+            p1_model.save_weights('White_model_weights.h5')
+            p2_model.save_weights('Black_model_weights.h5')
+            usr_input = "Escape"
+            print("Saving and Leaving the Game")
+        elif usr_input == "Escape":
+            print("Leaving the Game")
+        elif usr_input == " Escape:":
+            # if input error
+            usr_input = "Escape"
+            print("Leaving the Game")
+        else:
+            #print("input was: -", usr_input)
+            usr_input = ""
+            print("Continuing game")
 
     return "Game Ended"
 
