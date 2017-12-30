@@ -51,8 +51,8 @@ gamma = 0.9            # Discounted future reward. How much we care about steps 
 # ----------------------------------
 # Q-value NN update Parameters
 # ----------------------------------
-observe_time = 150           # Number of time-steps we will be acting on the game and observing results
-batch_size = 50              # Learning mini-batch size
+observe_time = 2000           # Number of time-steps we will be acting on the game and observing results
+batch_size = 250              # Learning mini-batch size
 
 # This is function will be where most of the game takes place
 print("Entering the game:")
