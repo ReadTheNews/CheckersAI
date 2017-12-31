@@ -48,22 +48,33 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
     # Inside this function -- the game should run "Endlessly"
 
     while usr_input != "Escape":
-        out_of_time = False
         while len(p1_stored_actions) < observe_time and len(p2_stored_actions) < observe_time:
-            # This should print out the "current" player and will check if the player is different than the previous state
+
             player_turn = checkers_game.turn
-            # print(str(game.Player.))
-            # if str(player_turn) == last_player:
-                # print("\nBad Move!")
-            # else:
-                # print("\nNext Players Turn")
 
+            # checks if the game is over
+            if checkers_game.is_over():
+                new_game = True
+                first_Black_Turn = True
+                checkers_game.reset()
+                print("\n###--- New Game! ---###")
+                if checkers_game.turn == checkers.Player.WHITE:
+                    print("### --- Black Won! ---###\n\n")
+                elif checkers_game.turn == checkers.Player.BLACK:
+                    print("### --- White Won! ---###\n\n")
 
-            if str(player_turn) == "Player.WHITE":
+            # checks if board is stale
+            if checkers_game.is_stale():
+                new_game = True
+                first_Black_Turn = True
+                checkers_game.reset()
+                print("\n###--- Stale Game! ---###")
+
+            if player_turn == checkers.Player.WHITE:
                 model = p1_model
                 state = p1_state
                 #print("Player is White")
-            elif str(player_turn) == "Player.BLACK":
+            elif player_turn == checkers.Player.BLACK:
                 model = p2_model
                 state = p2_state
                 #print("Player is Black")
@@ -145,10 +156,6 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
             last_board_state = state
             new_game = False
 
-            #print("The Len of White stored actions {}".format(len(p1_stored_actions)))
-            #print("The Len of Black stored actions {}".format(len(p2_stored_actions)))
-            #print('')
-
         # There should be enough collected to Train a network after leaving the previous loop
         # train_qvalue_nn(stored_actions, batch_size, model, gamma, checkers_actions, state)
         if len(p1_stored_actions) >= observe_time:
@@ -157,7 +164,7 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
             p1_stored_actions = deque()
             p1_stored_actions.append((state, action, 0, state, False))
         elif len(p2_stored_actions) >= observe_time:
-            p2_model = train_qvalue_nn(p1_stored_actions, batch_size, p2_model, gamma, checkers_actions, state)
+            p2_model = train_qvalue_nn(p2_stored_actions, batch_size, p2_model, gamma, checkers_actions, state)
             print("\nBlack Model Trained \n")
             p2_stored_actions = deque()
             p2_stored_actions.append((state, action, 0, state, False))
@@ -169,13 +176,13 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
 
 
 
-        print("\nYou have 5 seconds to input the following - (Ctrl-C to start / Ctrl-F2 in PyCharm IDE)")
+        print("\nYou have 3 seconds to input the following - (Ctrl-C to start / Ctrl-F2 in PyCharm IDE)")
         print("-) Type 'Save' to Save and quit")
         print("-) Type 'Escape' to quit")
-        print("-) 5 second timeout to continue")
+        print("-) 3 second timeout to continue")
         # print("User input: ")
         try:
-            for i in range(0,5):
+            for i in range(0,3):
                 sleep(1)
         except KeyboardInterrupt:
             usr_input = input("User elected to input the following: ")
@@ -201,7 +208,7 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
         else:
             #print("input was: -", usr_input)
             usr_input = ""
-            print("Continuing game")
+            print("\nContinuing game")
 
     return "Game Ended"
 
