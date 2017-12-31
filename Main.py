@@ -16,7 +16,8 @@ from Action_decision import action_decision
 
 import checkers
 
-
+## TO DO LIST
+# - Work on rewards and penalties
 
 print('Game Loaded')
 
@@ -37,6 +38,9 @@ while load_model !='y' and load_model != 'n':
 if load_model == 'y':
     p1_model.load_weights('White_model_weights.h5')
     p2_model.load_weights('Black_model_weights.h5')
+    print("Models loaded")
+else:
+    print("New models created")
 
 # ----------------------------------
 # Q-value Parameters
