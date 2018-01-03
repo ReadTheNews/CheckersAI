@@ -19,15 +19,11 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
     # ----------------------------------
     # Initialization for model -- First game in training?
     # ----------------------------------
-
     checkers_game = checkers.Game()  # need to import checkers game path???
-    #print(checkers_game)
 
     obs = np.expand_dims(np.asarray(checkers_game.board), axis=0)
-    #print(obs)
     p1_state = np.stack((obs, obs), axis=1)
     p2_state = np.stack((obs, obs), axis=1)
-    #print(p1_state)
 
     # ----------------------------------
     # Collect Actions
@@ -45,6 +41,9 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
     usr_input = ""
     new_game = True
     first_Black_Turn = True
+    maximum_moves = 10000
+    move_number_i = 0
+
     # Inside this function -- the game should run "Endlessly"
 
     while usr_input != "Escape":
@@ -56,19 +55,83 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
             if checkers_game.is_over():
                 new_game = True
                 first_Black_Turn = True
+                move_number_i = 0
                 checkers_game.reset()
                 print("\n###--- New Game! ---###")
                 if checkers_game.turn == checkers.Player.WHITE:
                     print("### --- Black Won! ---###\n\n")
+
+                    # Update Player 1 score / stored values
+                    temp_list = list(p1_stored_actions[-1])
+                    temp_list[3] = last_board_state  # update the previous move future state network
+                    temp_list[2] = -1000  # update the previous states score
+                    temp_list[4] = True  # update the previous states score
+                    p1_stored_actions[-1] = tuple(temp_list)
+                    # Update Player 2 score / stored values
+                    temp_list = list(p2_stored_actions[-1])
+                    temp_list[3] = last_board_state  # update the previous move future state network
+                    temp_list[2] = 1000  # update the previous states score
+                    temp_list[4] = True  # update the previous states score
+                    p2_stored_actions[-1] = tuple(temp_list)
+
+
                 elif checkers_game.turn == checkers.Player.BLACK:
                     print("### --- White Won! ---###\n\n")
 
-            # checks if board is stale
-            if checkers_game.is_stale():
+                    # Update Player 1 score / stored values
+                    temp_list = list(p1_stored_actions[-1])
+                    temp_list[3] = last_board_state  # update the previous move future state network
+                    temp_list[2] = 1000  # update the previous states score
+                    temp_list[4] = True  # update the previous states score
+                    p1_stored_actions[-1] = tuple(temp_list)
+                    # Update Player 2 score / stored values
+                    temp_list = list(p2_stored_actions[-1])
+                    temp_list[3] = last_board_state  # update the previous move future state network
+                    temp_list[2] = -1000  # update the previous states score
+                    temp_list[4] = True  # update the previous states score
+                    p2_stored_actions[-1] = tuple(temp_list)
+
+
+            # checks if board is stale or maximum number of moves is met
+            if checkers_game.is_stale() or move_number_i == maximum_moves:
                 new_game = True
                 first_Black_Turn = True
+                move_number_i = 0
+                checkers.board_print(checkers_game.board)
                 checkers_game.reset()
-                print("\n###--- Stale Game! ---###")
+                if checkers_game.is_stale():
+                    print("\n###--- Stale Game! ---###")
+                    if len(p1_stored_actions) > 0:
+                        temp_list = list(p1_stored_actions[-1])
+                        temp_list[3] = last_board_state  # update the previous move future state network
+                        temp_list[2] = -100  # update the previous states score
+                        temp_list[4] = True  # update the previous states score
+                        p1_stored_actions[-1] = tuple(temp_list)
+                    # Update Player 2 score / stored values
+                    if len(p1_stored_actions) > 0:
+                        temp_list = list(p2_stored_actions[-1])
+                        temp_list[3] = last_board_state  # update the previous move future state network
+                        temp_list[2] = -100  # update the previous states score
+                        temp_list[4] = True  # update the previous states score
+                        p2_stored_actions[-1] = tuple(temp_list)
+                else:
+                    print("$------ Max moves reached ------$")
+                    if len(p1_stored_actions) > 0:
+                        temp_list = list(p1_stored_actions[-1])
+                        temp_list[3] = last_board_state  # update the previous move future state network
+                        temp_list[2] = -1  # update the previous states score
+                        temp_list[4] = True  # update the previous states score
+                        p1_stored_actions[-1] = tuple(temp_list)
+                    # Update Player 2 score / stored values
+                    if len(p2_stored_actions) > 0:
+                        temp_list = list(p2_stored_actions[-1])
+                        temp_list[3] = last_board_state  # update the previous move future state network
+                        temp_list[2] = -1  # update the previous states score
+                        temp_list[4] = True  # update the previous states score
+                        p2_stored_actions[-1] = tuple(temp_list)
+                # Update Player 1 score / stored values
+
+
 
             if player_turn == checkers.Player.WHITE:
                 model = p1_model
@@ -87,15 +150,7 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
             else:
                 q_value = model.predict(state)                        # Q-values predictions
                 action = np.argmax(q_value)                           # Move with highest Q-value is the chosen one
-                #print("Predicted")
 
-            #action_mapping = action_decision(action)
-            #print(action_mapping)
-            #moves = action_mapping.split(',')
-            #print(str(int(moves[0])) + "-" + str(int(moves[1])) + "-")
-
-            # Place in Action for the next board state
-            #observation_new = checkers_game.move(checkers_game, player_turn, int(moves[0]), int(moves[1]))
             (source, dest) = action_decision(action)
             checkers_game.move(source, dest)
             observation_new = np.array(checkers_game.board)
@@ -111,14 +166,14 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
                     else:
                         temp_list = list(p1_stored_actions[-1])
                         temp_list[3] = last_board_state  # update the previous move future state network
-                        temp_list[2] = 1  # update the previous states score
+                        temp_list[2] = 2  # update the previous states score
                         p1_stored_actions[-1] = tuple(temp_list)
                         p1_stored_actions.append((state, action, 0, state, False))
                         # This will initialize the next states stored moves that will later come back to edit
                 else:  # Means the input was invalid -- penalty needed
                     temp_list = list(p1_stored_actions[-1])
                     # temp_list[3] = game.board   # update the previous move future state network
-                    temp_list[2] = -1  # update the previous states score
+                    temp_list[2] = -10  # update the previous states score
                     p1_stored_actions[-1] = tuple(temp_list)
                     p1_stored_actions.append((state, action, 0, state, False))
             elif player_turn == checkers.Player.BLACK:
@@ -129,14 +184,14 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
                     else:
                         temp_list = list(p2_stored_actions[-1])
                         temp_list[3] = last_board_state  # update the previous move future state network
-                        temp_list[2] = 1  # update the previous states score
+                        temp_list[2] = 2  # update the previous states score
                         p2_stored_actions[-1] = tuple(temp_list)
                         p2_stored_actions.append((state, action, 0, state, False))
                         # This will initialize the next states stored moves that will later come back to edit
                 else:  # Means the input was invalid -- penalty needed
                     temp_list = list(p2_stored_actions[-1])
                     # temp_list[3] = game.board   # update the previous move future state network
-                    temp_list[2] = -1  # update the previous states score
+                    temp_list[2] = -10  # update the previous states score
                     p2_stored_actions[-1] = tuple(temp_list)
                     p2_stored_actions.append((state, action, 0, state, False))
             else:
@@ -155,9 +210,9 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
             last_player = player_turn
             last_board_state = state
             new_game = False
+            move_number_i = move_number_i + 1
 
         # There should be enough collected to Train a network after leaving the previous loop
-        # train_qvalue_nn(stored_actions, batch_size, model, gamma, checkers_actions, state)
         if len(p1_stored_actions) >= observe_time:
             p1_model = train_qvalue_nn(p1_stored_actions, batch_size, p1_model, gamma, checkers_actions, state)
             print("\nWhite Model Trained \n")
