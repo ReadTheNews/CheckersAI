@@ -18,6 +18,7 @@ import checkers
 
 ## TO DO LIST
 # - Work on rewards and penalties
+# - Work on maximum number of aloud moves to reset board an penalize
 
 print('Game Loaded')
 
@@ -45,14 +46,14 @@ else:
 # ----------------------------------
 # Q-value Parameters
 # ----------------------------------
-epsilon = 0.7          # Prob of doing a random move
+epsilon = 0.4          # Prob of doing a random move
 gamma = 0.9            # Discounted future reward. How much we care about steps further in time
 
 # ----------------------------------
 # Q-value NN update Parameters
 # ----------------------------------
 observe_time = 2000           # Number of time-steps we will be acting on the game and observing results
-batch_size = 250              # Learning mini-batch size
+batch_size = 1000              # Learning mini-batch size
 
 # This is function will be where most of the game takes place
 print("Entering the game:")
