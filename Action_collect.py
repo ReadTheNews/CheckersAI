@@ -41,8 +41,13 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
     usr_input = ""
     new_game = True
     first_Black_Turn = True
-    maximum_moves = 10000
+    maximum_moves = 20000
     move_number_i = 0
+
+    # initialize a few parameters
+    old_board_W = checkers_game.board
+    old_board_B = checkers_game.board
+    reward = 1
 
     # Inside this function -- the game should run "Endlessly"
 
@@ -120,14 +125,14 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
                         temp_list = list(p1_stored_actions[-1])
                         temp_list[3] = last_board_state  # update the previous move future state network
                         temp_list[2] = -1  # update the previous states score
-                        temp_list[4] = True  # update the previous states score
+                        temp_list[4] = False  # update the previous states score
                         p1_stored_actions[-1] = tuple(temp_list)
                     # Update Player 2 score / stored values
                     if len(p2_stored_actions) > 0:
                         temp_list = list(p2_stored_actions[-1])
                         temp_list[3] = last_board_state  # update the previous move future state network
                         temp_list[2] = -1  # update the previous states score
-                        temp_list[4] = True  # update the previous states score
+                        temp_list[4] = False  # update the previous states score
                         p2_stored_actions[-1] = tuple(temp_list)
                 # Update Player 1 score / stored values
 
@@ -152,11 +157,20 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
                 action = np.argmax(q_value)                           # Move with highest Q-value is the chosen one
 
             (source, dest) = action_decision(action)
+
+            if player_turn == checkers.Player.WHITE:
+                old_board_W = checkers_game.board
+            elif player_turn == checkers.Player.BLACK:
+                old_board_B = checkers_game.board
+
             checkers_game.move(source, dest)
             observation_new = np.array(checkers_game.board)
             obs_new = np.expand_dims(np.asarray(observation_new), axis=0)  # (Formatting issues)
             state_new = np.append(np.expand_dims(obs_new, axis=0), state[:, :1, :],
                                   axis=1)  # Update the input with the new state of the game
+
+            # Analyzing board jumps and move rewards
+
 
             # storing of moves for training
             if player_turn == checkers.Player.WHITE:
@@ -165,16 +179,32 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
                         p1_stored_actions.append((state, action, 0, state, False))
                     else:
                         temp_list = list(p1_stored_actions[-1])
+                        # opposing player score
+                        if len(p2_stored_actions) > 0:
+                            compare_temp_list = list(p2_stored_actions[-1])
+                            if compare_temp_list[2] == 150:
+                                temp_list[2] = 20  # update the previous states score, player got jumped
+
                         temp_list[3] = last_board_state  # update the previous move future state network
-                        temp_list[2] = 2  # update the previous states score
+                        temp_list[2] = 50  # update the previous states score
                         p1_stored_actions[-1] = tuple(temp_list)
-                        p1_stored_actions.append((state, action, 0, state, False))
-                        # This will initialize the next states stored moves that will later come back to edit
+
+                        # checks if king or jump then will reward accordingly
+                        if checkers.move_jumps(old_board_W, player_turn, source, dest):
+                            reward = 150
+                        elif checkers.move_grants_king(player_turn, dest):
+                            reward = 100
+                        else:
+                            reward = 50
+                        p1_stored_actions.append((state, action, reward, state, False))
+
                 else:  # Means the input was invalid -- penalty needed
                     temp_list = list(p1_stored_actions[-1])
                     # temp_list[3] = game.board   # update the previous move future state network
                     temp_list[2] = -10  # update the previous states score
                     p1_stored_actions[-1] = tuple(temp_list)
+
+
                     p1_stored_actions.append((state, action, 0, state, False))
             elif player_turn == checkers.Player.BLACK:
                 if player_turn != last_player:
@@ -183,10 +213,23 @@ def action_collect(p1_model, p2_model, epsilon, gamma, checkers_actions, observe
                         first_Black_Turn = False
                     else:
                         temp_list = list(p2_stored_actions[-1])
+                        #opposing player score
+                        if len(p1_stored_actions) > 0:
+                            compare_temp_list = list(p1_stored_actions[-1])
+                            if compare_temp_list[2] == 150:
+                                temp_list[2] = 20  # update the previous states score, player got jumped
+
                         temp_list[3] = last_board_state  # update the previous move future state network
-                        temp_list[2] = 2  # update the previous states score
                         p2_stored_actions[-1] = tuple(temp_list)
-                        p2_stored_actions.append((state, action, 0, state, False))
+
+                        # checks if king or jump then will reward accordingly
+                        if checkers.move_jumps(old_board_B, player_turn, source, dest):
+                            reward = 150
+                        elif checkers.move_grants_king(player_turn, dest):
+                            reward = 100
+                        else:
+                            reward = 50
+                        p2_stored_actions.append((state, action, reward, state, False))
                         # This will initialize the next states stored moves that will later come back to edit
                 else:  # Means the input was invalid -- penalty needed
                     temp_list = list(p2_stored_actions[-1])

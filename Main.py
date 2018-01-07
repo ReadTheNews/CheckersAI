@@ -46,7 +46,7 @@ else:
 # ----------------------------------
 # Q-value Parameters
 # ----------------------------------
-epsilon = 0.4          # Prob of doing a random move
+epsilon = 0.7          # Prob of doing a random move
 gamma = 0.9            # Discounted future reward. How much we care about steps further in time
 
 # ----------------------------------
